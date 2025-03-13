@@ -1,0 +1,30 @@
+curl -X POST "localhost:9200/_bulk?pretty" \
+  -H "Content-Type: application/json" \
+  -d'
+{ "index" : { "_index" : "index_name" } }
+{"name": "Snow Crash", "author": "Neal Stephenson", "release_date": "1992-06-01", "page_count": 470}
+{ "index" : { "_index" : "index_name" } }
+{"name": "Revelation Space", "author": "Alastair Reynolds", "release_date": "2000-03-15", "page_count": 585}
+{ "index" : { "_index" : "index_name" } }
+{"name": "1984", "author": "George Orwell", "release_date": "1985-06-01", "page_count": 328}
+{ "index" : { "_index" : "index_name" } }
+{"name": "Fahrenheit 451", "author": "Ray Bradbury", "release_date": "1953-10-15", "page_count": 227}
+{ "index" : { "_index" : "index_name" } }
+{"name": "Brave New World", "author": "Aldous Huxley", "release_date": "1932-06-01", "page_count": 268}
+{ "index" : { "_index" : "index_name" } }
+{"name": "The Handmaid'"'"'s Tale", "author": "Margaret Atwood", "release_date": "1985-06-01", "page_count": 311}
+'
+
+
+curl -X POST "localhost:9200/index_name/_search?pretty" \
+  -H "Content-Type: application/json" \
+  -d'
+{
+  "query": {
+    "query_string": {
+      "query": "snow"
+    }
+  }
+}'
+
+curl -X GET "localhost:9200/_cat/shards?v=true&h=index,prirep,shard,store&s=prirep,store&bytes=gb&pretty"

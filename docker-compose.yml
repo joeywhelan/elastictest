@@ -2,38 +2,22 @@ version: "3"
 
 networks:
   elastic_net:
+    name: elastic_net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.20.0/24   
 
 services:
-  postgres:
-    image: postgres:latest
-    container_name: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - 5432:5432
-    volumes:
-      - $PWD/postgres/scripts:/home/scripts
-    healthcheck:
-      test: ["CMD-SHELL", "su postgres -c pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    command: [ "postgres", "-c", "track_commit_timestamp=on" ]
-    networks:
-      - elastic_net
-
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    image: elasticsearch:${ELASTIC_VERSION}
     environment:
       - "discovery.type=single-node"
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
-      - "xpack.security.enabled=true"
-      - "xpack.security.authc.api_key.enabled=true"
-      - "xpack.security.authc.token.enabled=true"
+      - "xpack.security.enabled=false"
+      - "xpack.security.http.ssl.enabled=false"
       - "xpack.license.self_generated.type=trial"
       - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
-      - "action.destructive_requires_name=false"
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail -u elastic:${ELASTIC_PASSWORD} localhost:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -44,18 +28,21 @@ services:
         soft: -1
         hard: -1
     networks:
-      - elastic_net
+      elastic_net:
+        ipv4_address: 192.168.20.2
     ports:
-      - 9200:9200
+      - 9200
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
+    image: kibana:${KIBANA_VERSION}
     ports:
-      - 5601:5601
-    depends_on:
-      - elasticsearch
+      - 5601
     networks:
-      - elastic_net
+      elastic_net:
+        ipv4_address: 192.168.20.3
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     environment:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
@@ -69,19 +56,6 @@ services:
       timeout: 5s
       retries: 5
 
-  elastic-connectors:
-    image: docker.elastic.co/enterprise-search/elastic-connectors:${CONNECTORS_VERSION}
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-      kibana:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    volumes:
-      - $PWD/connectors-config/config:/config
-    command: /app/bin/elastic-ingest -c /config/config.yml
-    network_mode: "host"
 
 volumes:
   conn-es-data:

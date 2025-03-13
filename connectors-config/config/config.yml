@@ -1,8 +1,0 @@
-elasticsearch.host: http://localhost:9200 # Your Elasticsearch endpoint
-elasticsearch.username: elastic
-elasticsearch.password: elastic
-#elasticsearch.api_key: <ELASTICSEARCH_API_KEY> # Your Elasticsearch API key
-
-connectors:
-  - connector_id: "my-connector-id"
-    service_type: "postgresql"
