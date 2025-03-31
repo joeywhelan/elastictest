@@ -1,6 +1,6 @@
 #!/bin/bash
 docker compose up -d
-docker cp east-es01-1:/usr/share/elasticsearch/config/certs/ca/ca.crt east-ca.crt
+docker cp elastictest-es01-1:/usr/share/elasticsearch/config/certs/ca/ca.crt east-ca.crt
 source .env
 
 echo -e "\n*** ElasticSearch endpoint: https://$EAST_ELASTIC_IP:9200 ***"
