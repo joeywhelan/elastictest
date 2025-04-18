@@ -80,6 +80,7 @@ services:
       - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
+      - path.repo=/var/tmp/snapshots
     mem_limit: ${MEM_LIMIT}
     ulimits:
       memlock:
